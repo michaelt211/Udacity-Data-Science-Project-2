@@ -1,6 +1,7 @@
 import json
 import plotly
 import pandas as pd
+import numpy as np
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -8,6 +9,7 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
+from plotly.graph_objs import Histogram
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 import sys
@@ -48,6 +50,15 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    df_cat = df.iloc[:,:37]
+    df_cat = df_cat.apply(pd.to_numeric).sum().to_frame()
+    df_cat.reset_index(inplace = True)
+    x_cat = df_cat.iloc[:36,0]
+    y_cat_count = df_cat.iloc[:36,1]
+    
+    df['message_len'] = df['message'].apply(len)
+    y_length_count = df['message_len']
+    
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -65,10 +76,94 @@ def index():
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Genre",
+                    'categoryorder':'total descending'
                 }
             }
-        }
+        }, 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+       {
+            'data': [
+                Bar(
+                    x= x_cat,
+                    y=y_cat_count
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category", 
+                    'categoryorder':'total descending'
+                    
+                   
+                }
+            }
+        } , 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        {
+            'data': [
+                Histogram(
+                   x =  y_length_count, xbins=dict(start=np.min(y_length_count), end =np.percentile(y_length_count, 99))
+              
+               
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Lengths',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Length"
+                }
+            }
+        } 
+        
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+       
+        
+        
+        
+        
+        
+        
     ]
     
     # encode plotly graphs in JSON
