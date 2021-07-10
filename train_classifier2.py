@@ -6,6 +6,7 @@ import nltk
 nltk.download(['punkt', 'wordnet', 'stopwords'])
 import re
 import pickle
+from sklearn.externals import joblib
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.multioutput import MultiOutputClassifier
@@ -30,6 +31,17 @@ import warnings
 # - Load dataset from database with [`read_sql_table`](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_sql_table.html)
 # - Define feature and target variables X and Y
 def load_data(database_filepath):
+    
+    """
+    Load Data from Database 
+    Args: 
+        File path to .db file
+    Returns 
+        Dataframes X, Y and a list of category names
+    
+    
+    
+    """
     df = pd.read_sql_table('message_and_categories_ds10', con = 'sqlite:///' + database_filepath)
     X = df.loc[:,["message"]]
     X = X.squeeze()
@@ -39,7 +51,7 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    """ Normalize text string, tokenize text string and remove stop words from text string
+    """ Normalize text string, tokenize text string and remove stop words from text string and lemmatize
     Args: 
         Text string with message
     Returns 
@@ -56,13 +68,25 @@ def tokenize(text):
     # Stem word tokens and remove stop words
     stemmer = PorterStemmer()
     stop_words = stopwords.words("english")
+    wnl = WordNetLemmatizer()
+    lemmatized = [wnl.lemmatize(word) for word in tokens if word not in stop_words]
+    #stemmed = [stemmer.stem(lemmatized) for word in tokens if word not in stop_words]
     
-    stemmed = [stemmer.stem(word) for word in tokens if word not in stop_words]
     
-    return stemmed
+    return lemmatized
 
 
 def build_model():
+    """
+    Build Pipeline using Adaboost Classifier and tune model using GridSearch 
+    Args: 
+        None 
+    
+    Return: 
+        Tuned model 
+    
+    
+    """
     pipeline = Pipeline([
         ('vect',TfidfVectorizer(tokenizer=tokenize)),
         ('clf',  MultiOutputClassifier(AdaBoostClassifier()))
@@ -107,6 +131,19 @@ def get_eval_metrics(actual, predicted, col_names):
     return metrics_df  
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    
+    """
+    
+    Evaluate the model - Run the model on test data 
+    Args 
+        Trained Model 
+        Test data -- X_test  and Y_test 
+        caterogy names
+    Returns 
+        None 
+    
+    
+    """
     y_test_pred = model.predict(X_test).astype(int)
     #y_test_pred = y_test_pred.astype(int)
     eval_metrics =get_eval_metrics(np.array(Y_test).astype(int), y_test_pred, category_names)
@@ -123,13 +160,24 @@ def save_model(model, model_filepath):
     None
     """
     # Pickle the model
-    pickle.dump(model, open(model_filepath, 'wb'))
+    #pickle.dump(model, open(model_filepath, 'wb'))
+    
+    joblib.dump(model, open(model_filepath, 'wb'))
     #pickle.dump(model.best_estimator_, open(model_filepath, 'wb'))
   
 
 def main():
+    
+    """
+    Loads Data, Builds, Model, Trains Model, Evaluates Model, and Saves Model
+    
+    Args: None
+    Returns: None
+    
+    
+    """
     #python train_classifier.py ../data/DisasterResponse.db classifier.pkl
-    #python train_classifier.py DisasterResponse10.db classifier.pkl
+    #python train_classifier2.py DisasterResponse10.db classifier.pkl
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
