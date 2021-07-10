@@ -25,3 +25,7 @@ This is a 3 part project. The 1st part of this project extracts transforms and l
 3. Go to http://0.0.0.0:3001/  or https://view6914b2f4-3001.udacity-student-workspaces.com/ 
 
 
+References: 
+
+- Stack Overflow 
+- Python and library documentation 
