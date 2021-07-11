@@ -108,13 +108,13 @@ def load_data(messages_filepath, categories_filepath):
     return df
 
 def clean_data(df):
-     """
+    """
     clean data by splitting columns and getting rid of duplicates and converting data types
     Args: 
        data frame
     Returns 
       clean data frame
-    """
+    """   
     categories_split = df.categories.str.split(";",expand=True)
     categories_split = categories_split.applymap(str)
     categories_split_df_list=categories_split
