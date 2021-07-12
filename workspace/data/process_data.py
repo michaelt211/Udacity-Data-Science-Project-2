@@ -22,59 +22,6 @@ from sqlalchemy import create_engine
 from sklearn.model_selection import train_test_split
 
 
-# In[2]:
-
-
-# load messages dataset
-messages = pd.read_csv('disaster_messages.csv')
-messages.head()
-
-
-# In[3]:
-
-
-# load categories dataset
-categories = pd.read_csv('disaster_categories.csv')
-categories.head()
-
-
-# ### 2. Merge datasets.
-# - Merge the messages and categories datasets using the common id
-# - Assign this combined dataset to `df`, which will be cleaned in the following steps
-
-# In[4]:
-
-
-
-
-
-
-# ### 7. Save the clean dataset into an sqlite database.
-# You can do this with pandas [`to_sql` method](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.to_sql.html) combined with the SQLAlchemy library. Remember to import SQLAlchemy's `create_engine` in the first cell of this notebook to use it below.
-
-# In[17]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# ### 8. Use this notebook to complete `etl_pipeline.py`
-# Use the template file attached in the Resources folder to write a script that runs the steps above to create a database based on new datasets specified by the user. Alternatively, you can complete `etl_pipeline.py` in the classroom on the `Project Workspace IDE` coming later.
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
 
 
 
@@ -127,27 +74,7 @@ def clean_data(df):
     categories_split_df_list.head()
     categories_split_df_list
 
-# merge datasets
-   
 
-
-# ### 3. Split `categories` into separate category columns.
-# - Split the values in the `categories` column on the `;` character so that each value becomes a separate column. You'll find [this method](https://pandas.pydata.org/pandas-docs/version/0.23/generated/pandas.Series.str.split.html) very helpful! Make sure to set `expand=True`.
-# - Use the first row of categories dataframe to create column names for the categories data.
-# - Rename columns of `categories` with new column names.
-
-# In[5]:
-
-
-    # create a dataframe of the 36 individual category columns
-
-
-
-# ### 4. Convert category values to just numbers 0 or 1.
-# - Iterate through the category columns in df to keep only the last character of each string (the 1 or 0). For example, `related-0` becomes `0`, `related-1` becomes `1`. Convert the string to a numeric value.
-# - You can perform [normal string actions on Pandas Series](https://pandas.pydata.org/pandas-docs/stable/text.html#indexing-with-str), like indexing, by including `.str` after the Series. You may need to first convert the Series to be of type string, which you can do with `astype(str)`.
-
-# In[8]:
 
 
     categories_split_df_list_1 = categories_split_df_list.astype(str)
@@ -163,18 +90,14 @@ def clean_data(df):
 # - Drop the categories column from the df dataframe since it is no longer needed.
 # - Concatenate df and categories data frames.
 
-# In[9]:
+
 
 
 # drop the original categories column from `df`
     del df['categories']
-# In[10]:
     print(df)
-# In[11]:
     print(categories_split_df_list_1)
 
-
-# In[12]:
 
 
 # concatenate the original dataframe with the new `categories` dataframe
@@ -182,24 +105,7 @@ def clean_data(df):
     df1 
 
 
-# ### 6. Remove duplicates.
-# - Check how many duplicates are in this dataset.
-# - Drop the duplicates.
-# - Confirm duplicates were removed.
 
-# In[13]:
-
-
-# check number of duplicates
-#duplicate = df[df.duplicated()] # returns duplicated values 
-#dups = df1.pivot_table(index = list(df1.columns), aggfunc = 'size')
-#type(dups)
-
-
-# In[14]:
-
-
-# of duplicates
     df1.count()[0] - df1.drop_duplicates().count()[0]
 # of entries entries for each of the unique rows
     dups = df1.pivot_table(index = list(df1.columns), aggfunc = 'size')
@@ -230,8 +136,8 @@ def save_data(df, database_filename):
     
     
     """
-    engine = create_engine('sqlite:///DisasterResponse10.db')
-    df.to_sql('message_and_categories_ds10', engine, index=False)
+    engine = create_engine('sqlite:///' + database_filename)
+    df.to_sql('disaster_response_table', engine, index=False)
 
 
 def main():
