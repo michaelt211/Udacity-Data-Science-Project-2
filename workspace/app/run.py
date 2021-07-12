@@ -33,7 +33,7 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+engine = create_engine('sqlite:///../data/DisasterResponse10.db')
 df = pd.read_sql_table('message_and_categories_ds10', engine)
 
 # load model
